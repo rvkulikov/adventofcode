@@ -1,0 +1,9 @@
+version: '3'
+services:
+  postgres.adventofcode:
+    image: postgres:14-alpine
+    working_dir: /app
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./app:/app
