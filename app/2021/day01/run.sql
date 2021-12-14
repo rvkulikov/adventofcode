@@ -20,8 +20,66 @@ with data as (
     )
 )
 select
-  count(*)
+  format('Part 1 answer is: %s', count(*))
 from
   data
+where true
+  and prev < curr;
+
+with
+  data0 as (
+    select
+      i.input_value,
+      g.group_ids
+    from
+      day01.input i
+        cross join lateral (
+          select
+            array_agg(_i.input_id) as group_ids
+          from
+            day01.input _i
+          where true
+            and _i.input_id > i.input_id - 3
+            and _i.input_id <= i.input_id
+        ) g
+  ),
+  data1 as (
+    select distinct
+      unnest(group_ids) as group_id
+    from
+      data0
+    order by
+      group_id
+  ),
+  data2 as (
+    select
+      data1.group_id as group_id,
+      s.group_sum as group_sum
+    from
+      data1
+        cross join lateral (
+          select
+            sum(input_value) as group_sum
+          from
+            data0
+          where true
+            and group_id = any(group_ids)
+        ) s
+  ),
+  data3 as (
+    select
+      lag(group_sum) over w as prev,
+      group_sum as curr
+    from
+      data2
+    window
+      w as (
+        order by group_id
+      )
+  )
+select
+  format('Part 2 answer is: %s', count(*))
+from
+  data3
 where true
   and prev < curr;
