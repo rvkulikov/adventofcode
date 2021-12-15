@@ -35,7 +35,7 @@ with
       case
         when movement_direction = 'forward' then movement_distance
         else 0
-        end as horizontal,
+      end as horizontal,
       case
         when movement_direction = 'forward' then movement_distance * a.aim_sum
         else 0
