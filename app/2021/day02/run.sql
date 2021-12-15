@@ -32,7 +32,6 @@ from
 with
   deltas as (
     select
-      *,
       case
         when movement_direction = 'forward' then movement_distance
         else 0
@@ -40,26 +39,25 @@ with
       case
         when movement_direction = 'forward' then movement_distance * a.aim_sum
         else 0
-        end as vertical
+      end as vertical
     from
       day02.input i
         cross join lateral (
-        select
-          sum(case
-                when movement_direction = 'up' then -movement_distance
-                when movement_direction = 'down' then movement_distance
-                else 0
+          select
+            sum(case
+              when movement_direction = 'up' then -movement_distance
+              when movement_direction = 'down' then movement_distance
+              else 0
             end) as aim_sum
-        from
-          day02.input _i
-        where
-            _i.movement_id <= i.movement_id
+          from
+            day02.input _i
+          where
+              _i.movement_id <= i.movement_id
         ) a
     order by
       movement_id
   )
 select
   format('Part 2 answer is: %s', sum(horizontal) * sum(vertical))
-
 from
   deltas
