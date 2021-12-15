@@ -20,7 +20,7 @@ with
         when movement_direction = 'up' then -movement_distance
         when movement_direction = 'down' then movement_distance
         else 0
-        end as vertical
+      end as vertical
     from
       day02.input
   )
@@ -52,7 +52,7 @@ with
           from
             day02.input _i
           where
-              _i.movement_id <= i.movement_id
+            _i.movement_id <= i.movement_id
         ) a
     order by
       movement_id
