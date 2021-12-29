@@ -44,4 +44,4 @@ select
      lpad(array_to_string(array_agg(case when positives > negatives then 0 else 1 end), '')::text, 32, '0')::bit(32)::int
   )
 from
-  columns
+  columns;
