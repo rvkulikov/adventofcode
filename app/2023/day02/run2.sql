@@ -1,32 +1,22 @@
 --@formatter:off
-drop schema if exists aoc_2023_day02_run1 cascade;
-create schema aoc_2023_day02_run1;
+drop schema if exists aoc_2023_day02_run2 cascade;
+create schema aoc_2023_day02_run2;
 
-set session search_path to aoc_2023_day02_run1,public;
+set session search_path to aoc_2023_day02_run2,public;
 
-create table aoc_2023_day02_run1.input (
+create table aoc_2023_day02_run2.input (
   input_id int4 generated always as identity ,
   input_value text
 );
 
-\copy aoc_2023_day02_run1.input (input_value) from '2023/day02/input.csv' with (format 'text');
+create aggregate aoc_2023_day02_run2.product(int4) (
+  sfunc = int4mul,
+  stype=int4
+);
+
+\copy aoc_2023_day02_run2.input (input_value) from '2023/day02/input.csv' with (format 'text');
 
 with
-  c1000 as (
-    select
-      *
-    from
-      (values
-        (12, 'red'),
-        (13, 'green'),
-        (14, 'blue')
-      ) t (
-        constraint_number,
-        constraint_color
-      )
-  ),
-
-
   c1010 as (
     select
       input_parts[1] as game_log,
@@ -34,7 +24,7 @@ with
 
       input_parts[2] as game_session_log
     from
-      aoc_2023_day02_run1.input,
+      aoc_2023_day02_run2.input,
       string_to_array(input_value, ':') input_parts
   ),
 
@@ -65,23 +55,28 @@ with
   c2010 as (
     select
       game_id,
-      game_session_log
+      game_session_log,
+      array_agg(roll_color_max_number) as game_color_max_numbers,
+      product(roll_color_max_number) as game_power
     from
       c1010 g
-    where true
-      and not exists((
-        select from
-          c1030 r
-            inner join c1000 c on true
-              and c.constraint_color = r.roll_color
-              and c.constraint_number < r.roll_number
-        where true
-          and r.game_id = g.game_id
-      ))
+        inner join lateral (
+          select
+            r.roll_color,
+            max(r.roll_number) as roll_color_max_number
+          from
+            c1030 r
+          where true
+            and r.game_id = g.game_id
+          group by
+            1
+        ) p on true
+    group by
+      1, 2
   ),
   c2020 as (
     select
-      sum(game_id) as games_sum
+      sum(game_power) as games_sum
     from
       c2010
   )
