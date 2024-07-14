@@ -1,9 +1,11 @@
 version: '3'
 services:
   postgres.adventofcode:
-    image: postgres:14-alpine
+    image: postgis/postgis:16-3.4-alpine
     working_dir: /app
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - ./app:/app
+    ports:
+      - "15432:5432"
